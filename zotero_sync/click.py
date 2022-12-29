@@ -82,6 +82,9 @@ def trash(file_dir: click.Path, api_key: str, user_id: str):
         api_key (str): zotero api key
         user_id (str): zotero user id
     """
+    if not isinstance(file_dir, click.Path):
+        print('convert file_dir type')
+        file_dir = Path(file_dir)
     computer_unique, _ = get_paths(file_dir, api_key, user_id)
     if click.confirm(
         f"Are you sure you want to trash {len(computer_unique)} files?",

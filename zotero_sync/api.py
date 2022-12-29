@@ -2,6 +2,7 @@
 Model with helper functions for making api calls
 """
 import requests
+import re
 import json
 import click
 from pathlib import Path
@@ -130,12 +131,14 @@ def get_paths(file_dir: Path, api_key: str, user_id: str) -> (list, ApiClient):
     client = ApiClient(api_key, user_id)
     validate_config(file_dir, api_key, user_id)
     r = client.get_all_pages('items')
-    cloud_paths = [path["data"]["path"]
-                   for path in r if "path" in path["data"]]
+    cloud_paths = [re.sub(r"^attachments:", "",path["data"]["path"])
+               for path in r if "path" in path["data"]]
+    #computer_paths = [path for path in Path(file_dir).glob(
     computer_paths = [path for path in file_dir.glob(
         "**/*.pdf") if "trash" not in str(path)]
-    computer_unique = [path for path in computer_paths if str(
-        path.absolute()) not in cloud_paths]
+    #computer_unique = [path for path in computer_paths if str(path.absolute()) not in cloud_paths]
+    computer_unique = [path for path in computer_paths if str(path.name) not in cloud_paths]
+
     return computer_unique, client
 
 
